@@ -16,7 +16,7 @@ public interface Node {
 	
 	public List<Integer> getNeighbors();
 	
-	public void getName();
+	public int getName();
 
 
 }
