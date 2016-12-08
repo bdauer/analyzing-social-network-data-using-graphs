@@ -26,6 +26,10 @@ public class CapGraph implements Graph {
 		
 		listMap = new HashMap<Integer, CapNode>();
 	}
+	public CapGraph(int node) {
+		listMap = new HashMap<Integer, CapNode>();
+		this.addVertex(node);
+	}
 	
 	public CapNode getVertex(int num) {
 		return listMap.get(num);
@@ -40,9 +44,7 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public void addVertex(int num) {
-		// TODO Auto-generated method stub
-		vertices = getVertexIDs();
-		
+		vertices = getVertexIDs();		
 		listMap.put(num, new CapNode(num));
 	}
 
@@ -51,7 +53,6 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public void addEdge(int from, int to) {
-		// TODO Auto-generated method stub
 		CapNode fromNode = listMap.get(from);
 		fromNode.addNeighbor(to);
 	}
@@ -62,7 +63,45 @@ public class CapGraph implements Graph {
 	@Override
 	public Graph getEgonet(int center) {
 		// TODO Auto-generated method stub
-		return null;
+		CapNode centerNode = getVertex(center);
+				
+		List<Integer> neighbors = centerNode.getNeighbors();
+		List<Integer> egonetNodes = new ArrayList<Integer>();
+		
+		// find egonet members
+		for (int neighbor : neighbors) {			
+
+			CapNode neighborNode = getVertex(neighbor);
+			
+			List<Integer> neighborNeighbors = neighborNode.getNeighbors();
+			
+			for (int n : neighborNeighbors) {
+				if (neighbors.contains(n)) {
+					egonetNodes.add(n);
+					break;
+				}
+			}			
+		}
+		
+		// build graph
+		CapGraph egonet = new CapGraph(center);
+		
+		for (int n : egonetNodes) {
+			egonet.addVertex(n);			
+		}
+		
+		// add edges
+		for (int n : egonetNodes) {
+			CapNode originalNode = getVertex(n);
+			CapNode egoNode = egonet.getVertex(n);
+			
+			for (int neighbor : originalNode.getNeighbors()) {
+				egoNode.addNeighbor(neighbor);
+			}
+			
+		}
+		
+		return egonet;
 	}
 
 	/* (non-Javadoc)
