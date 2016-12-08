@@ -63,6 +63,8 @@ public class CapGraphTester {
 	
 	public void TestAddEdge() {
 		
+		// tests against the edges added in setUp()
+		
 		List<Integer> testList = new ArrayList<Integer>();
 		List<Integer> neighbors = new ArrayList<Integer>();
 		
@@ -91,7 +93,16 @@ public class CapGraphTester {
 		
 	}
 	
-	public void TestExportGraph() {
+	@Test
+	public void getEgonet() {
+		
+		CapGraph egoNet1 = (CapGraph) CapGraphWithNodes.getEgonet(1);
+		Set<Integer> egoNet1IDs = new HashSet<Integer>();
+		egoNet1IDs.add(1);
+		egoNet1IDs.add(2);
+		egoNet1IDs.add(5);
+		
+		assertEquals(egoNet1IDs, egoNet1.getVertexIDs());
 		
 	}
 }
