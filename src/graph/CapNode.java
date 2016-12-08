@@ -13,8 +13,8 @@ public class CapNode implements Node {
 		this.neighbors = new ArrayList<Integer>();
 	}
 	
-	public void addNeighbor() {
-		
+	public void addNeighbor(int neighbor) {
+		neighbors.add(neighbor);
 	}
 	
 	public List<Integer> getNeighbors() {
@@ -25,4 +25,14 @@ public class CapNode implements Node {
 	public int getName() {
 		return name;
 	}
+	
+	public void addEdgeIn(){
+		
+	}
+	
+	public void addEdgeOut(){
+		
+	}
+	
+	
 }

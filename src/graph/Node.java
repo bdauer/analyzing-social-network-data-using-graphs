@@ -1,6 +1,5 @@
 package graph;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -12,11 +11,9 @@ import java.util.List;
  */
 public interface Node {
 	
-	public void addNeighbor();
+	public void addNeighbor(int neighbor);
 	
 	public List<Integer> getNeighbors();
 	
 	public int getName();
-
-
 }
