@@ -69,43 +69,26 @@ public class CapGraph implements Graph {
 	@Override
 	public Graph getEgonet(int center) {
 		
-		CapNode centerNode = getVertex(center);
+		CapNode centerNode = getVertex(center);				
+		List<Integer> egoNodes = centerNode.getNeighbors();
+		egoNodes.add(center);
 				
-		List<Integer> neighbors = centerNode.getNeighbors();
-		List<Integer> egonetNodes = new ArrayList<Integer>();
-		
-		// find egonet members
-		for (int neighbor : neighbors) {			
-
-			CapNode neighborNode = getVertex(neighbor);
-			
-			List<Integer> neighborNeighbors = neighborNode.getNeighbors();
-			
-			for (int n : neighborNeighbors) {
-				if (neighbors.contains(n)) {
-					egonetNodes.add(n);
-				}
-			}
-		}
-		
 		// build graph
 		CapGraph egonet = new CapGraph(center);
 		
-		for (int n : egonetNodes) {
+		// add nodes
+		for (int n : egoNodes) {
 			egonet.addVertex(n);			
 		}
 		
 		// add edges
-		for (int n : egonetNodes) {
-			CapNode originalNode = getVertex(n);
+		for (int n : egoNodes) {
 			CapNode egoNode = egonet.getVertex(n);
-			
-			for (int neighbor : originalNode.getNeighbors()) {
-				egoNode.addNeighbor(neighbor);
+
+			if (egoNodes.contains(n)) {
+				egoNode.addNeighbor(n);
 			}
-			
-		}
-		
+		}		
 		return egonet;
 	}
 
