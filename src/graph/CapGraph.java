@@ -3,6 +3,7 @@
  */
 package graph;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -75,7 +76,14 @@ public class CapGraph implements Graph {
 	@Override
 	public HashMap<Integer, HashSet<Integer>> exportGraph() {
 		// TODO Auto-generated method stub
-		return null;
+		HashMap<Integer, HashSet<Integer>> graphRepresentation = new HashMap<Integer, HashSet<Integer>>();
+		for (int num : listMap.keySet()) {
+			CapNode node = listMap.get(num);
+			HashSet<Integer> neighbors = (HashSet<Integer>) node.getNeighbors();
+			
+			graphRepresentation.put(num, neighbors);
+		}
+		return graphRepresentation;
 	}
 
 }
