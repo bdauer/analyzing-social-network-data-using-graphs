@@ -6,6 +6,8 @@ package graph;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Your name here.
@@ -15,6 +17,13 @@ import java.util.List;
  *
  */
 public class CapGraph implements Graph {
+	
+	private Map<Integer, CapNode> listMap;
+	private Set<Integer> vertices;
+	
+	public Set<Integer> getVertices() {
+		return listMap.keySet();
+	}
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#addVertex(int)
@@ -22,7 +31,9 @@ public class CapGraph implements Graph {
 	@Override
 	public void addVertex(int num) {
 		// TODO Auto-generated method stub
-
+		vertices = getVertices();
+		
+		listMap.put(num, new CapNode(num));
 	}
 
 	/* (non-Javadoc)
@@ -31,7 +42,8 @@ public class CapGraph implements Graph {
 	@Override
 	public void addEdge(int from, int to) {
 		// TODO Auto-generated method stub
-
+		CapNode fromNode = listMap.get(from);
+		fromNode.addNeighbor(to);
 	}
 
 	/* (non-Javadoc)
