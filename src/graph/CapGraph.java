@@ -27,7 +27,11 @@ public class CapGraph implements Graph {
 		listMap = new HashMap<Integer, CapNode>();
 	}
 	
-	public Set<Integer> getVertices() {
+	public CapNode getVertex(int num) {
+		return listMap.get(num);
+	}
+	
+	public Set<Integer> getVertexIDs() {
 		return listMap.keySet();
 	}
 
@@ -37,7 +41,7 @@ public class CapGraph implements Graph {
 	@Override
 	public void addVertex(int num) {
 		// TODO Auto-generated method stub
-		vertices = getVertices();
+		vertices = getVertexIDs();
 		
 		listMap.put(num, new CapNode(num));
 	}

@@ -22,17 +22,8 @@ public class CapNode implements Node {
 		
 	}
 	
-	public int getName() {
+	public int getID() {
 		return name;
-	}
-	
-	public void addEdgeIn(){
-		
-	}
-	
-	public void addEdgeOut(){
-		
-	}
-	
+	}	
 	
 }

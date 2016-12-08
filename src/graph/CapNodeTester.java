@@ -28,15 +28,15 @@ public class CapNodeTester {
 		populatedArrayList.add(1);
 		populatedArrayList.add(2);
 		
-		nodeWithNeighbors.addNeighbor(neighborlessNode.getName());
-		nodeWithNeighbors.addNeighbor(neighborlessNode2.getName());
+		nodeWithNeighbors.addNeighbor(neighborlessNode.getID());
+		nodeWithNeighbors.addNeighbor(neighborlessNode2.getID());
 	}
 	
 	@Test
 	public void testNodeValue() {
 		
-		assertEquals("check node name:", 1, neighborlessNode.getName());
-		assertEquals("check node name:", 3, nodeWithNeighbors.getName());
+		assertEquals("check node name:", 1, neighborlessNode.getID());
+		assertEquals("check node name:", 3, nodeWithNeighbors.getID());
 	}
 	
 	@Test
