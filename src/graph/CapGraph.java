@@ -30,11 +30,17 @@ public class CapGraph implements Graph {
 		listMap = new HashMap<Integer, CapNode>();
 		this.addVertex(node);
 	}
-	
+
+	/*
+	 * returns a vertex with the passed number as its id.
+	 */
 	public CapNode getVertex(int num) {
 		return listMap.get(num);
 	}
 	
+	/*
+	 * Returns the set of all vertex IDs.
+	 */
 	public Set<Integer> getVertexIDs() {
 		return listMap.keySet();
 	}
@@ -62,7 +68,7 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public Graph getEgonet(int center) {
-		// TODO Auto-generated method stub
+		
 		CapNode centerNode = getVertex(center);
 				
 		List<Integer> neighbors = centerNode.getNeighbors();
@@ -78,9 +84,8 @@ public class CapGraph implements Graph {
 			for (int n : neighborNeighbors) {
 				if (neighbors.contains(n)) {
 					egonetNodes.add(n);
-					break;
 				}
-			}			
+			}
 		}
 		
 		// build graph
@@ -104,6 +109,8 @@ public class CapGraph implements Graph {
 		return egonet;
 	}
 
+	
+	
 	/* (non-Javadoc)
 	 * @see graph.Graph#getSCCs()
 	 */
