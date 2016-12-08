@@ -21,6 +21,11 @@ public class CapGraph implements Graph {
 	private Map<Integer, CapNode> listMap;
 	private Set<Integer> vertices;
 	
+	public CapGraph() {
+		
+		listMap = new HashMap<Integer, CapNode>();
+	}
+	
 	public Set<Integer> getVertices() {
 		return listMap.keySet();
 	}
