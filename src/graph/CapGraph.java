@@ -194,6 +194,7 @@ public class CapGraph implements Graph {
 		
 		Set<Integer> vertices = graph.getVertexIDs();
 		Set<Integer> visited = new HashSet<Integer>();
+		List<Integer> toRemove = new ArrayList<Integer>();
 		
 		for (int v : vertices) {
 			CapNode vNode = graph.getVertex(v);
@@ -204,8 +205,11 @@ public class CapGraph implements Graph {
 				nNode.addNeighbor(v);
 				
 				if (!visited.contains(n)) {
-					vNode.removeNeighbor(n);
+					toRemove.add(n);
 				}
+			}
+			for (int n : toRemove) {
+				vNode.removeNeighbor(n);
 			}
 			visited.add(v);			
 		}
