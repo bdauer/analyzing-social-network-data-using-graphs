@@ -46,4 +46,11 @@ public class CapNodeTester {
 	
 		assertEquals("check neighborless nodes:", populatedArrayList, nodeWithNeighbors.getNeighbors());
 	}
+	
+	@Test
+	public void testAddNeighbor() {
+		populatedArrayList.add(3);
+		nodeWithNeighbors.addNeighbor(3);
+		assertEquals(populatedArrayList, nodeWithNeighbors.getNeighbors());
+	}
 }
