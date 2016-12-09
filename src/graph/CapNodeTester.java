@@ -53,4 +53,11 @@ public class CapNodeTester {
 		nodeWithNeighbors.addNeighbor(3);
 		assertEquals(populatedArrayList, nodeWithNeighbors.getNeighbors());
 	}
+	
+	@Test
+	public void testRemoveNeighbor() {
+		populatedArrayList.remove(0); // takes an index
+		nodeWithNeighbors.removeNeighbor(1); // takes the ID
+		assertEquals(populatedArrayList, nodeWithNeighbors.getNeighbors());
+	}
 }
