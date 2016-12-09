@@ -228,7 +228,8 @@ public class CapGraph implements Graph {
 		HashMap<Integer, HashSet<Integer>> graphRepresentation = new HashMap<Integer, HashSet<Integer>>();
 		for (int num : listMap.keySet()) {
 			CapNode node = listMap.get(num);
-			HashSet<Integer> neighbors = (HashSet<Integer>) node.getNeighbors();
+			HashSet<Integer> neighbors = new HashSet<Integer>();
+			neighbors.addAll(node.getNeighbors());
 			
 			graphRepresentation.put(num, neighbors);
 		}
