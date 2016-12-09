@@ -63,6 +63,10 @@ public class CapGraph implements Graph {
 		CapNode fromNode = listMap.get(from);
 		fromNode.addNeighbor(to);
 	}
+	public void removeEdge(int from, int to) {
+		CapNode fromNode = listMap.get(from);
+		fromNode.removeNeighbor(to);
+	}
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#getEgonet(int)
@@ -100,10 +104,11 @@ public class CapGraph implements Graph {
 	@Override
 	public List<Graph> getSCCs() {
 		// TODO Auto-generated method stub
-//		strongly connected component, everyone 
-//		Perform DFS(G) keeping track of the order in which vertices finish
-//		Compute the transpose of G
-//		DFS(G), exploring in reverse order of finish time from step 1
+		
+		Stack<Integer> finished = dfs(this, (Stack<Integer>) getVertexIDs());
+		CapGraph transposedGraph = transpose(this);
+//		Compute the transpose of G (flip all of the edges)
+//		DFS(Gtransposed), exploring in reverse order of finish time from step 1
 		return null;
 	}
 	
@@ -121,6 +126,7 @@ public class CapGraph implements Graph {
 		return finished;
 	}
 	/*
+	 * Used by dfs.
 	 * Recursively visits each neighbor's neighbors
 	 * adding them to the visited set.
 	 * If a node has no unvisited neighbors,
@@ -136,6 +142,11 @@ public class CapGraph implements Graph {
 			}
 		}
 		finished.push(v);
+	}
+	
+	public CapGraph transpose(CapGraph graph) {
+		
+		return null;
 	}
 
 	/* (non-Javadoc)
