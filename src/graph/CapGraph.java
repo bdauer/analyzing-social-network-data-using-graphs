@@ -200,6 +200,8 @@ public class CapGraph implements Graph {
 			CapNode vNode = graph.getVertex(v);
 			List<Integer> neighbors = vNode.getNeighbors();
 
+			toRemove.clear();
+			
 			for (int n : neighbors) {
 				CapNode nNode = graph.getVertex(n);
 				nNode.addNeighbor(v);
@@ -211,10 +213,11 @@ public class CapGraph implements Graph {
 			for (int n : toRemove) {
 				vNode.removeNeighbor(n);
 			}
-			visited.add(v);			
+			visited.add(v);
 		}
 		return graph;
 	}
+	
 
 	/* (non-Javadoc)
 	 * @see graph.Graph#exportGraph()
