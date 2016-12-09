@@ -17,6 +17,11 @@ public class CapNode implements Node {
 		neighbors.add(neighbor);
 	}
 	
+	public void removeNeighbor(int neighbor) {
+		int index = neighbors.indexOf(neighbor);
+		neighbors.remove(index);
+	}
+	
 	public List<Integer> getNeighbors() {
 		return neighbors;
 		
