@@ -9,6 +9,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.Stack;
 
 /**
  * @author Your name here.
@@ -73,7 +74,6 @@ public class CapGraph implements Graph {
 		List<Integer> egoNodes = centerNode.getNeighbors();
 		egoNodes.add(center);
 				
-		// build graph
 		CapGraph egonet = new CapGraph(center);
 		
 		// add nodes
@@ -100,7 +100,42 @@ public class CapGraph implements Graph {
 	@Override
 	public List<Graph> getSCCs() {
 		// TODO Auto-generated method stub
+//		strongly connected component, everyone 
+//		Perform DFS(G) keeping track of the order in which vertices finish
+//		Compute the transpose of G
+//		DFS(G), exploring in reverse order of finish time from step 1
 		return null;
+	}
+	
+	public Stack<Integer> dfs(CapGraph graph, Stack<Integer> vertices) {
+
+		Set<Integer> visited = new HashSet<Integer>();
+		Stack<Integer> finished = new Stack<Integer>();
+		
+		while (!vertices.isEmpty()) {
+			int v = vertices.pop();
+			if (!visited.contains(v)) {
+				dfsVisit(graph, v, visited, finished);
+			}
+		}
+		return finished;
+	}
+	/*
+	 * Recursively visits each neighbor's neighbors
+	 * adding them to the visited set.
+	 * If a node has no unvisited neighbors,
+	 * it is pushed on the finished stack.
+	 * 
+	 */
+	public void dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
+		visited.add(v);
+		CapNode vNode = getVertex(v);
+		for (int n: vNode.getNeighbors()) {
+			if (!visited.contains(n)) {
+				dfsVisit(graph, n, visited, finished);
+			}
+		}
+		finished.push(v);
 	}
 
 	/* (non-Javadoc)
