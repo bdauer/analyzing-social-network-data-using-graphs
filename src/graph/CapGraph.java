@@ -50,8 +50,7 @@ public class CapGraph implements Graph {
 	 * @see graph.Graph#addVertex(int)
 	 */
 	@Override
-	public void addVertex(int num) {
-		vertices = getVertexIDs();		
+	public void addVertex(int num) {		
 		listMap.put(num, new CapNode(num));
 	}
 
@@ -63,6 +62,7 @@ public class CapGraph implements Graph {
 		CapNode fromNode = listMap.get(from);
 		fromNode.addNeighbor(to);
 	}
+	
 	public void removeEdge(int from, int to) {
 		CapNode fromNode = listMap.get(from);
 		fromNode.removeNeighbor(to);
@@ -103,15 +103,21 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public List<Graph> getSCCs() {
-		// TODO Auto-generated method stub
 		
-		Stack<Integer> finished = dfs(this, (Stack<Integer>) getVertexIDs());
+		vertices = getVertexIDs();
+		Stack<Integer> vertexStack = new Stack<Integer>();
+		vertexStack.addAll(vertices);
+		
+		Stack<Integer> finished = dfs(this, vertexStack);
 		CapGraph transposedGraph = transpose(this);
-//		Compute the transpose of G (flip all of the edges)
-//		DFS(Gtransposed), exploring in reverse order of finish time from step 1
-		return null;
+		List<Graph> graphList = dfsGraphList(transposedGraph, finished);
+		return graphList;
 	}
 	
+	/*
+	 * Performs depth first search on a graph.
+	 * Returns a stack of nodes in the order that they were finished.
+	 */
 	public Stack<Integer> dfs(CapGraph graph, Stack<Integer> vertices) {
 
 		Set<Integer> visited = new HashSet<Integer>();
@@ -125,6 +131,41 @@ public class CapGraph implements Graph {
 		}
 		return finished;
 	}
+	
+	/*
+	 * Performs depth first search on a graph.
+	 * Returns a list of strongly connected components.
+	 */
+	public List<Graph> dfsGraphList(CapGraph graph, Stack<Integer>vertices) {
+		
+		Set<Integer> visited = new HashSet<Integer>();
+		Stack<Integer> finished = new Stack<Integer>();
+		List<Integer> sccNodeIDs = new ArrayList<Integer>();
+		List<Graph> sccList = new ArrayList<Graph>();
+		
+		while (!vertices.isEmpty()) {
+			int v = vertices.pop();
+			if (!visited.contains(v)) {
+				sccNodeIDs = dfsVisit(graph, v, visited, finished); // v is the root on the second pass.
+			}
+			
+			CapGraph scc = new CapGraph(v);
+			
+			// build the nodes of the new graph
+			for (int nodeID : sccNodeIDs) {
+				scc.addVertex(nodeID);
+				CapNode originalNode = getVertex(nodeID);
+				CapNode sccNode = scc.getVertex(nodeID);
+				
+				for (int n : originalNode.getNeighbors()) {
+					sccNode.addNeighbor(n);
+				}
+			}
+			sccList.add(scc);
+		}
+		return sccList;  
+	}
+	
 	/*
 	 * Used by dfs.
 	 * Recursively visits each neighbor's neighbors
@@ -133,20 +174,42 @@ public class CapGraph implements Graph {
 	 * it is pushed on the finished stack.
 	 * 
 	 */
-	public void dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
+	public List<Integer> dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
 		visited.add(v);
 		CapNode vNode = getVertex(v);
+		
+		List<Integer>sccNodeIDs = new ArrayList<Integer>();
+		
 		for (int n: vNode.getNeighbors()) {
 			if (!visited.contains(n)) {
+				sccNodeIDs.add(n);
 				dfsVisit(graph, n, visited, finished);
 			}
 		}
 		finished.push(v);
+		return sccNodeIDs;
 	}
 	
 	public CapGraph transpose(CapGraph graph) {
 		
-		return null;
+		Set<Integer> vertices = graph.getVertexIDs();
+		Set<Integer> visited = new HashSet<Integer>();
+		
+		for (int v : vertices) {
+			CapNode vNode = graph.getVertex(v);
+			List<Integer> neighbors = vNode.getNeighbors();
+
+			for (int n : neighbors) {
+				CapNode nNode = graph.getVertex(n);
+				nNode.addNeighbor(v);
+				
+				if (!visited.contains(n)) {
+					vNode.removeNeighbor(n);
+				}
+			}
+			visited.add(v);			
+		}
+		return graph;
 	}
 
 	/* (non-Javadoc)
