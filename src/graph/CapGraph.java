@@ -73,29 +73,31 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public Graph getEgonet(int center) {
+
+		CapNode centerNode = this.getVertex(center);
 		
-		CapNode centerNode = getVertex(center);				
-		List<Integer> egoNodes = centerNode.getNeighbors();
+		List<Integer> egoNodes = new ArrayList<Integer>(); 
+		egoNodes.addAll(centerNode.getNeighbors());
 		egoNodes.add(center);
-				
-		CapGraph egonet = new CapGraph(center);
-		
+
+		CapGraph egonet = new CapGraph();		
+
 		// add nodes
 		for (int n : egoNodes) {
 			egonet.addVertex(n);			
 		}
-		
 		// add edges
-		for (int n : egoNodes) {
+		for (int n : egonet.getVertexIDs()) {
 			CapNode egoNode = egonet.getVertex(n);
-			CapNode origiNode = getVertex(n);
+			CapNode origiNode = this.getVertex(n);
+			
 			List<Integer> origiNeighbors = origiNode.getNeighbors();
-
-			if (egoNodes.contains(n)) {
-				if (origiNeighbors.contains(n)) {
-					egoNode.addNeighbor(n);					
+					
+			for (int neighbor : origiNeighbors) {
+				
+				if (egoNodes.contains(neighbor)) {
+					egoNode.addNeighbor(neighbor);
 				}
-
 			}
 		}		
 		return egonet;
@@ -115,10 +117,6 @@ public class CapGraph implements Graph {
 		
 		Stack<Integer> finished = dfs(this, vertexStack);
 		
-		for (int item : finished) {
-			
-			System.out.println("debugging:" + item);
-		}
 		// it's taking the second to last item, then connecting it to everything.
 		// need to figure out why. Looping error.
 		CapGraph transposedGraph = transpose(this);
@@ -134,6 +132,7 @@ public class CapGraph implements Graph {
 
 		Set<Integer> visited = new HashSet<Integer>();
 		Stack<Integer> finished = new Stack<Integer>();
+		List<Integer> sccNodeIDs = new ArrayList<Integer>();
 		
 		while (!vertices.isEmpty()) {
 			int v = vertices.pop();
@@ -188,7 +187,7 @@ public class CapGraph implements Graph {
 	 */
 	public List<Integer> dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
 		visited.add(v);
-		CapNode vNode = getVertex(v);
+		CapNode vNode = graph.getVertex(v);
 		
 		List<Integer>sccNodeIDs = new ArrayList<Integer>();
 		
@@ -205,29 +204,28 @@ public class CapGraph implements Graph {
 	public CapGraph transpose(CapGraph graph) {
 		
 		Set<Integer> vertices = graph.getVertexIDs();
-		Set<Integer> visited = new HashSet<Integer>();
-		List<Integer> toRemove = new ArrayList<Integer>();
+		CapGraph transposedGraph = new CapGraph();
 		
+		// access each node
 		for (int v : vertices) {
-			CapNode vNode = graph.getVertex(v);
-			List<Integer> neighbors = vNode.getNeighbors();
-
-			toRemove.clear();
+			CapNode origiNode = graph.getVertex(v);
 			
-			for (int n : neighbors) {
-				CapNode nNode = graph.getVertex(n);
-				nNode.addNeighbor(v);
+			if (!transposedGraph.getVertexIDs().contains(v)) {
+				transposedGraph.addVertex(v);				
+			}
+			
+			List<Integer> neighbors = origiNode.getNeighbors();
+
+			for (int neighbor : neighbors) {
 				
-				if (!visited.contains(n)) {
-					toRemove.add(n);
+				if (!transposedGraph.getVertexIDs().contains(neighbor)) {
+					transposedGraph.addVertex(neighbor);
 				}
+				CapNode transposedNeighbor = transposedGraph.getVertex(neighbor);				
+				transposedNeighbor.addNeighbor(v);
 			}
-			for (int n : toRemove) {
-				vNode.removeNeighbor(n);
-			}
-			visited.add(v);
 		}
-		return graph;
+		return transposedGraph;
 	}
 	
 
@@ -236,7 +234,7 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public HashMap<Integer, HashSet<Integer>> exportGraph() {
-		// TODO Auto-generated method stub
+
 		HashMap<Integer, HashSet<Integer>> graphRepresentation = new HashMap<Integer, HashSet<Integer>>();
 		for (int num : listMap.keySet()) {
 			CapNode node = listMap.get(num);
@@ -246,6 +244,39 @@ public class CapGraph implements Graph {
 			graphRepresentation.put(num, neighbors);
 		}
 		return graphRepresentation;
+	}
+	
+	public static void main(String[] args) {
+		
+
+		CapGraph CapGraphWithNodes = new CapGraph();
+
+		for (int i=1; i<6; i++) {
+			CapGraphWithNodes.addVertex(i);
+		}
+		
+		CapGraphWithNodes.addEdge(1, 2);
+		CapGraphWithNodes.addEdge(2, 1);
+		CapGraphWithNodes.addEdge(1, 5);
+		CapGraphWithNodes.addEdge(3, 4);
+		System.out.println("Checking graph...");
+		System.out.println(CapGraphWithNodes.exportGraph());
+		
+		Graph egoNet = CapGraphWithNodes.getEgonet(1);
+		
+		System.out.println("Checking egonet...");
+		System.out.println(egoNet.exportGraph());
+		
+		System.out.println("Checking transpose...");
+		
+		Graph transposedGraph = CapGraphWithNodes.transpose(CapGraphWithNodes);
+		
+		System.out.println(transposedGraph.exportGraph());
+		
+		System.out.println("Checking getSCCs...");
+		for (Graph graph : CapGraphWithNodes.getSCCs()) {
+			System.out.println(graph.exportGraph());
+		}		
 	}
 
 }
