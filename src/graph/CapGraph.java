@@ -88,9 +88,14 @@ public class CapGraph implements Graph {
 		// add edges
 		for (int n : egoNodes) {
 			CapNode egoNode = egonet.getVertex(n);
+			CapNode origiNode = getVertex(n);
+			List<Integer> origiNeighbors = origiNode.getNeighbors();
 
 			if (egoNodes.contains(n)) {
-				egoNode.addNeighbor(n);
+				if (origiNeighbors.contains(n)) {
+					egoNode.addNeighbor(n);					
+				}
+
 			}
 		}		
 		return egonet;
@@ -109,6 +114,13 @@ public class CapGraph implements Graph {
 		vertexStack.addAll(vertices);
 		
 		Stack<Integer> finished = dfs(this, vertexStack);
+		
+		for (int item : finished) {
+			
+			System.out.println("debugging:" + item);
+		}
+		// it's taking the second to last item, then connecting it to everything.
+		// need to figure out why. Looping error.
 		CapGraph transposedGraph = transpose(this);
 		List<Graph> graphList = dfsGraphList(transposedGraph, finished);
 		return graphList;
