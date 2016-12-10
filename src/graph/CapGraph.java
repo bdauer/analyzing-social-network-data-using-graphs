@@ -201,6 +201,10 @@ public class CapGraph implements Graph {
 		return sccNodeIDs;
 	}
 	
+	/*
+	 * Return the transpose
+	 * of the passed graph.
+	 */
 	public CapGraph transpose(CapGraph graph) {
 		
 		Set<Integer> vertices = graph.getVertexIDs();
