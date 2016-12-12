@@ -102,8 +102,6 @@ public class CapGraph implements Graph {
 		}		
 		return egonet;
 	}
-
-	
 	
 	/* (non-Javadoc)
 	 * @see graph.Graph#getSCCs()
@@ -111,16 +109,18 @@ public class CapGraph implements Graph {
 	@Override
 	public List<Graph> getSCCs() {
 		
+		List<Integer> sccNodeIDs = new ArrayList<Integer>();
+		
 		vertices = getVertexIDs();
 		Stack<Integer> vertexStack = new Stack<Integer>();
 		vertexStack.addAll(vertices);
 		
-		Stack<Integer> finished = dfs(this, vertexStack);
-		
-		// it's taking the second to last item, then connecting it to everything.
-		// need to figure out why. Looping error.
+		Stack<Integer> finished = dfs(this, vertexStack, sccNodeIDs);
+
 		CapGraph transposedGraph = transpose(this);
-		List<Graph> graphList = dfsGraphList(transposedGraph, finished);
+		sccNodeIDs.clear();
+		List<Graph> graphList = dfsGraphList(transposedGraph, finished, sccNodeIDs);
+
 		return graphList;
 	}
 	
@@ -128,16 +128,15 @@ public class CapGraph implements Graph {
 	 * Performs depth first search on a graph.
 	 * Returns a stack of nodes in the order that they were finished.
 	 */
-	public Stack<Integer> dfs(CapGraph graph, Stack<Integer> vertices) {
+	public Stack<Integer> dfs(CapGraph graph, Stack<Integer> vertices, List<Integer> sccNodeIDs) {
 
 		Set<Integer> visited = new HashSet<Integer>();
 		Stack<Integer> finished = new Stack<Integer>();
-		List<Integer> sccNodeIDs = new ArrayList<Integer>();
 		
 		while (!vertices.isEmpty()) {
 			int v = vertices.pop();
 			if (!visited.contains(v)) {
-				dfsVisit(graph, v, visited, finished);
+				dfsVisit(graph, v, visited, finished, sccNodeIDs);
 			}
 		}
 		return finished;
@@ -147,32 +146,38 @@ public class CapGraph implements Graph {
 	 * Performs depth first search on a graph.
 	 * Returns a list of strongly connected components.
 	 */
-	public List<Graph> dfsGraphList(CapGraph graph, Stack<Integer>vertices) {
+	public List<Graph> dfsGraphList(CapGraph graph, Stack<Integer>vertices, List<Integer> sccNodeIDs) {
 		
 		Set<Integer> visited = new HashSet<Integer>();
 		Stack<Integer> finished = new Stack<Integer>();
-		List<Integer> sccNodeIDs = new ArrayList<Integer>();
+		CapGraph scc;
+
 		List<Graph> sccList = new ArrayList<Graph>();
 		
 		while (!vertices.isEmpty()) {
+
 			int v = vertices.pop();
+
 			if (!visited.contains(v)) {
-				sccNodeIDs = dfsVisit(graph, v, visited, finished); // v is the root on the second pass.
+				sccNodeIDs = dfsVisit(graph, v, visited, finished, sccNodeIDs); // v is the root on the second pass.
+				vertices.removeAll(sccNodeIDs); // remove all node IDs to get it working.
 			}
 			
-			CapGraph scc = new CapGraph(v);
+			scc = new CapGraph(v);
 			
 			// build the nodes of the new graph
 			for (int nodeID : sccNodeIDs) {
 				scc.addVertex(nodeID);
-				CapNode originalNode = getVertex(nodeID);
+				CapNode origiNode = getVertex(nodeID);
 				CapNode sccNode = scc.getVertex(nodeID);
 				
-				for (int n : originalNode.getNeighbors()) {
+				for (int n : origiNode.getNeighbors()) {
 					sccNode.addNeighbor(n);
 				}
+				
 			}
 			sccList.add(scc);
+			sccNodeIDs.clear();
 		}
 		return sccList;  
 	}
@@ -185,20 +190,19 @@ public class CapGraph implements Graph {
 	 * it is pushed on the finished stack.
 	 * 
 	 */
-	public List<Integer> dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished) {
+	public List<Integer> dfsVisit(CapGraph graph, int v, Set<Integer> visited, Stack<Integer> finished, List<Integer>sccNodeIDs) {
 		visited.add(v);
 		CapNode vNode = graph.getVertex(v);
 		
-		List<Integer>sccNodeIDs = new ArrayList<Integer>();
-		
 		for (int n: vNode.getNeighbors()) {
 			if (!visited.contains(n)) {
-				sccNodeIDs.add(n);
-				dfsVisit(graph, n, visited, finished);
+				dfsVisit(graph, n, visited, finished, sccNodeIDs);
+
 			}
 		}
 		finished.push(v);
-		return sccNodeIDs;
+		sccNodeIDs.add(v);
+		return sccNodeIDs; // if this returns visited that would help. but then I'm not getting the grouped IDs.
 	}
 	
 	/*
@@ -263,6 +267,7 @@ public class CapGraph implements Graph {
 		CapGraphWithNodes.addEdge(2, 1);
 		CapGraphWithNodes.addEdge(1, 5);
 		CapGraphWithNodes.addEdge(3, 4);
+		CapGraphWithNodes.addEdge(5, 2);
 		System.out.println("Checking graph...");
 		System.out.println(CapGraphWithNodes.exportGraph());
 		
@@ -279,8 +284,12 @@ public class CapGraph implements Graph {
 		
 		System.out.println("Checking getSCCs...");
 		for (Graph graph : CapGraphWithNodes.getSCCs()) {
-			System.out.println(graph.exportGraph());
-		}		
+			// Should produce {{1, 2, 5,}, {3}, [4}}
+			// currently it returns {{3}, {4}, {1, 2, 5}, {2}, {1}}
+			// This means that it's never resetting the value returned, so the new graph gets tacked on.
+			System.out.println("a graph: " + graph.exportGraph());
+		}
+
 	}
 
 }
