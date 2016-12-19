@@ -8,3 +8,9 @@ Capstone project for [Object Oriented Java Programming: Data Structures and Beyo
 * wrote a method to get a user's egonet.
 * wrote a method to get all strongly connected components.
 * wrote unit tests in JUnit.
+
+## Week 2
+* researched and identified:
+*     easier problem: Identify trend setters and trend followers
+*     harder problem: Assuming the starting point of a provided user, how many people does a video reach? What does the shape of the new graph look like?
+* wrote a [proposal](https://github.com/bdauer/analyzing-social-network-data-using-graphs/blob/master/scope_and_problem_definition.md) describing the problems and plans for solving them.
