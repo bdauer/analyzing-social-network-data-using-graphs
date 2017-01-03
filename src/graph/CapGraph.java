@@ -4,15 +4,20 @@
 package graph;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
 import java.util.Stack;
+import java.util.TreeMap;
 
 /**
- * @author Your name here.
+ * @author Ben Dauer.
  * 
  * For the warm up assignment, you must implement your Graph in a class
  * named CapGraph.  Here is the stub file.
@@ -234,6 +239,41 @@ public class CapGraph implements Graph {
 			}
 		}
 		return transposedGraph;
+	}
+	
+	public void identifyTrendSetters() {
+	
+		List<CapGraph> SCCList = new ArrayList<CapGraph>();		
+		SCCList.add((CapGraph) this.getSCCs());
+		// find each SCC.
+		
+		// For each SCC in the graph, 
+		// the trend setters are users with more followers
+		// than the majority of their SCC.
+		
+		for (CapGraph scc: SCCList) {
+			// used to find the nodes with the highest number of followers in each SCC.
+			// store the number of followers for each node.
+			PriorityQueue<CapNode> numFollowersQueue = new PriorityQueue<CapNode>(SCCList.size(), new TrendSetterComparator());
+			
+			int graphSize = scc.getVertexIDs().size();
+			// assume top 10% in graph are trend setters because I'm feeling generous.
+			double percentOfTrendSetters = .1; 
+			double numTrendSetters = graphSize * percentOfTrendSetters;
+			
+			// add scc nodes to the numFollowerQueue.
+			for (int nodeID : scc.getVertexIDs()) {
+				CapNode node = listMap.get(nodeID);	
+				numFollowersQueue.add(node);
+			}
+			
+			CapNode trendyNode = new CapNode();
+			
+			for (int i = 0; i < numTrendSetters; i++) {
+				trendyNode = numFollowersQueue.remove();					
+				trendyNode.setIsTrendSetter(true);
+			}
+		}
 	}
 	
 
