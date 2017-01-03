@@ -94,7 +94,7 @@ public class CapGraphTester {
 	}
 	
 	@Test
-	public void getEgonet() {
+	public void testGetEgonet() {
 		
 		CapGraph egoNet1 = (CapGraph) CapGraphWithNodes.getEgonet(1);
 		Set<Integer> egoNet1IDs = new HashSet<Integer>();
@@ -102,7 +102,11 @@ public class CapGraphTester {
 		egoNet1IDs.add(2);
 		egoNet1IDs.add(5);
 		
+		// check membership
 		assertEquals(egoNet1IDs, egoNet1.getVertexIDs());
+				
+		
+// should add another test to ensure the presence of the correct edges.
 		
 	}
 }
