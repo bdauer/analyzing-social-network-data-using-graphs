@@ -6,7 +6,7 @@ How do videos spread on Twitter? I'll use a heuristic to identify different type
 
 ## Data
 
-The provided UCSD twtitter data
+The provided UCSD twitter data
 
 
 
