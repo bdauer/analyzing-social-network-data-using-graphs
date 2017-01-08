@@ -11,12 +11,12 @@ import java.util.List;
  */
 public class CapNode implements Node {
 	
-	int name;
+	private int name;
 	
 	// the neighbors are a user's followers.
-	ArrayList<Integer> neighbors;
-	ArrayList<Integer> followers;
-	boolean isTrendSetter = false;
+	private ArrayList<Integer> neighbors;
+	private ArrayList<Integer> followers;
+	private boolean isTrendSetter = false;
 	
 	public CapNode(int name) {
 		this.name = name;
