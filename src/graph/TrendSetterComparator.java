@@ -14,6 +14,6 @@ public class TrendSetterComparator implements Comparator<CapNode> {
 	
 	@Override
 	public int compare(CapNode node1, CapNode node2) {
-		return Double.compare(node2.getNumNeighbors(), node1.getNumNeighbors());
+		return Double.compare(node1.getNumNeighbors(), node2.getNumNeighbors());
 	}
 }

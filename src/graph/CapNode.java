@@ -3,14 +3,31 @@ package graph;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * @author Ben
+ *
+ * The CapNode represents a Twitter user.
+ *
+ */
 public class CapNode implements Node {
 	
 	int name;
+	
+	// the neighbors are a user's followers.
 	ArrayList<Integer> neighbors;
+	boolean isTrendSetter = false;
 	
 	public CapNode(int name) {
 		this.name = name;
 		this.neighbors = new ArrayList<Integer>();
+	}
+	public CapNode() {
+		this.neighbors = new ArrayList<Integer>();
+	}
+	
+
+	public int getName() {
+		return this.name;
 	}
 	
 	public void addNeighbor(int neighbor) {
@@ -19,16 +36,31 @@ public class CapNode implements Node {
 	
 	public void removeNeighbor(int neighbor) {
 		int index = neighbors.indexOf(neighbor);
+		if (index == -1) {
+			System.out.println("removeNeighbor couldn't find the object");
+		}
 		neighbors.remove(index);
 	}
 	
 	public List<Integer> getNeighbors() {
 		return neighbors;
-		
+	}
+	
+	public Integer getNumNeighbors() {
+		return neighbors.size();
 	}
 	
 	public int getID() {
 		return name;
-	}	
+	}
+	
+	public boolean getIsTrendSetter() {
+		return isTrendSetter;
+	}
+	
+	public void setIsTrendSetter(boolean bool) {
+		
+		this.isTrendSetter = bool;
+	}
 	
 }
