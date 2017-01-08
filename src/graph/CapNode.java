@@ -15,19 +15,29 @@ public class CapNode implements Node {
 	
 	// the neighbors are a user's followers.
 	ArrayList<Integer> neighbors;
+	ArrayList<Integer> followers;
 	boolean isTrendSetter = false;
 	
 	public CapNode(int name) {
 		this.name = name;
 		this.neighbors = new ArrayList<Integer>();
+		this.followers = new ArrayList<Integer>();
 	}
 	public CapNode() {
 		this.neighbors = new ArrayList<Integer>();
+		this.followers = new ArrayList<Integer>();
 	}
 	
 
 	public int getName() {
 		return this.name;
+	}
+	
+	public void addFollower(int follower) {
+		followers.add(follower);
+	}
+	public List<Integer> getFollowers(){
+		return followers;
 	}
 	
 	public void addNeighbor(int neighbor) {

@@ -71,8 +71,13 @@ public class CapGraph implements Graph {
 	 */
 	@Override
 	public void addEdge(int from, int to) {
-		CapNode fromNode = listMap.get(from);
+		CapNode fromNode = this.getVertex(from);
+
 		fromNode.addNeighbor(to);
+		
+		CapNode toNode = this.getVertex(to);
+		toNode.addFollower(from);
+		
 	}
 
 	public void removeEdge(int from, int to) {
@@ -176,14 +181,8 @@ public class CapGraph implements Graph {
 			int v = vertices.pop();
 
 			if (!visited.contains(v)) {
-				sccNodeIDs = dfsVisit(graph, v, visited, finished, sccNodeIDs); // v
-																				// is
-																				// the
-																				// root
-																				// on
-																				// the
-																				// second
-																				// pass.
+				sccNodeIDs = dfsVisit(graph, v, visited, finished, sccNodeIDs);
+
 				vertices.removeAll(sccNodeIDs); // remove all node IDs to get it
 												// working.
 			}
@@ -337,6 +336,12 @@ public class CapGraph implements Graph {
 		
 	}
 	
+	public void buildSharingGraph(int nodeID) {
+		this.getVertex(nodeID);
+		
+		// iterate over all followers
+	}
+	
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -397,6 +402,7 @@ public class CapGraph implements Graph {
 			CapNode node = CapGraphWithNodes.getVertex(nodeName);
 			if (node.getIsTrendSetter()) {
 				System.out.println(nodeName + " is a trend setter");
+				System.out.println(node.getFollowers().toString());
 			}
 		}
 
