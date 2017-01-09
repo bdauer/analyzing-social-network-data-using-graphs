@@ -9,6 +9,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.PriorityQueue;
@@ -74,10 +75,10 @@ public class CapGraph implements Graph {
 		CapNode fromNode = this.getVertex(from);
 
 		fromNode.addNeighbor(to);
-		
+
 		CapNode toNode = this.getVertex(to);
 		toNode.addFollower(from);
-		
+
 	}
 
 	public void removeEdge(int from, int to) {
@@ -263,9 +264,7 @@ public class CapGraph implements Graph {
 	}
 
 	/*
-	 * Find all trend setters.
-	 * Set their isTrendSetter attribute
-	 * to true.
+	 * Find all trend setters. Set their isTrendSetter attribute to true.
 	 */
 	public void identifyTrendSetters() {
 
@@ -279,7 +278,7 @@ public class CapGraph implements Graph {
 				// assume top 10% in graph, rounded up, are trend setters
 				double percentOfTrendSetters = .1;
 				double numTrendSetters = calculatePercent(graphSize, percentOfTrendSetters);
-				
+
 				TrendSetterComparator comparator = new TrendSetterComparator();
 				PriorityQueue<CapNode> followersQueue = buildNodeQueue(graphSize, scc, comparator);
 
@@ -292,39 +291,32 @@ public class CapGraph implements Graph {
 			}
 		}
 	}
-	
+
 	/*
-	 * Return a priority queue
-	 * containing all of the nodes
-	 * in the provided graph
+	 * Return a priority queue containing all of the nodes in the provided graph
 	 * ordered by the provided comparator.
 	 */
 	private PriorityQueue<CapNode> buildNodeQueue(int pqSize, CapGraph graph, Comparator comparator) {
-		
-		PriorityQueue<CapNode> nodeQueue = new PriorityQueue<CapNode>(
-																	pqSize,
-																	comparator);
+
+		PriorityQueue<CapNode> nodeQueue = new PriorityQueue<CapNode>(pqSize, comparator);
 		// add scc nodes to the numFollowerQueue.
 		for (int nodeID : graph.getVertexIDs()) {
 			CapNode node = this.getVertex(nodeID);
 			nodeQueue.add(node);
 		}
-		return nodeQueue;		
+		return nodeQueue;
 	}
-	
-	
+
 	/*
-	 * Calculate and return
-	 * n percent of a number
-	 * based on the number
-	 * and a provided percentage.
+	 * Calculate and return n percent of a number based on the number and a
+	 * provided percentage.
 	 */
 	private double calculatePercent(double number, double percentage) {
 		return number * percentage;
 	}
-	
+
 	/*
-	 * Return a list of SCC's as CapGraphs. 
+	 * Return a list of SCC's as CapGraphs.
 	 */
 	private List<CapGraph> getSCCList() {
 		List<CapGraph> SCCList = new ArrayList<CapGraph>();
@@ -333,15 +325,102 @@ public class CapGraph implements Graph {
 			SCCList.add(capgraph);
 		}
 		return SCCList;
-		
+
 	}
-	
-	public void buildSharingGraph(int nodeID) {
-		this.getVertex(nodeID);
-		
-		// iterate over all followers
+
+	public void buildSharingGraph(int nodeID, Deque<Integer> toVisit, Set<Integer> alreadyViewed) {
+
+		CapNode node = this.getVertex(nodeID);
+		if (!alreadyViewed.contains(nodeID)) {
+			alreadyViewed.add(nodeID);
+		}
+
+		List<Integer> nodeFollowers = node.getFollowers();
+		int numNodeFollowers = nodeFollowers.size();
+
+		if (node.getIsTrendSetter()) {
+			int followersExposed = 0;
+
+			// first loop for trend setters
+			// determines if they should share.
+			// I don't want to modify followers
+			// unless the video is shared
+			// and all followers are modified.
+			for (int followerID : nodeFollowers) {
+
+				double percent = .2;
+				double maxFollowerViews = calculatePercent(numNodeFollowers, percent);
+
+				if (alreadyViewed.contains(followerID)) {
+					followersExposed++;
+
+					// This might make sense as a heuristic,
+					// but realistically they're not going to know
+					// how many of their followers have seen the video.
+					// However it does help to gauge popularity of the video.
+
+					if (followersExposed > maxFollowerViews) {
+						return;
+					}
+				}
+			}
+		}
+		for (int followerID : nodeFollowers) {
+			if (!toVisit.contains(followerID)) {
+				toVisit.addLast(followerID);
+			}
+			alreadyViewed.add(followerID);
+		}
 	}
-	
+
+	public void trackAllSharing(int startingNodeID) {
+
+		// alreadyViewed needs to contain anyone who's been exposed.
+		// however, the queue should contain anyone who hasn't
+		// been given the chance to share.
+		// This means that those who are exposed for the first time
+		// should be added to the queue BEFORE they are added to alreadyViewed.
+		Deque<Integer> toVisit = new LinkedList<Integer>();
+		Set<Integer> Visited = new HashSet<Integer>();
+		Set<Integer> alreadyViewed = new HashSet<Integer>();
+
+		// add starting node
+		alreadyViewed.add(startingNodeID);
+		CapNode startingNode = this.getVertex(startingNodeID);
+
+		toVisit.add(startingNodeID);
+		toVisit.addAll(startingNode.getFollowers());
+
+		int n = 1;
+		int currentGraphLength = 0;
+		int previousGraphLength = 0;
+		while (!toVisit.isEmpty()) {
+			int nodeID = toVisit.pop();
+			if (!Visited.contains(nodeID)) {
+				buildSharingGraph(nodeID, toVisit, alreadyViewed);
+				Visited.add(nodeID);
+			}
+			CapGraph graph = new CapGraph(startingNodeID);
+
+			
+			for (int nodeName : Visited) {
+				graph.addVertex(nodeName);
+				CapNode origiNode = listMap.get(nodeName);
+				CapNode newNode = graph.getVertex(nodeName);
+				for (int neighbor : origiNode.getNeighbors()) {
+					newNode.addNeighbor(neighbor);
+				}
+				currentGraphLength = graph.getVertexIDs().size();
+			}
+			if (Visited.size() < this.getVertexIDs().size() &&
+				(currentGraphLength != previousGraphLength)) {
+				previousGraphLength = currentGraphLength;
+				n++;
+			}
+		}
+
+	}
+
 	/*
 	 * (non-Javadoc)
 	 * 
@@ -379,32 +458,35 @@ public class CapGraph implements Graph {
 		CapGraphWithNodes.addEdge(1, 5);
 		CapGraphWithNodes.addEdge(3, 4);
 		CapGraphWithNodes.addEdge(5, 2);
-		System.out.println("Checking graph...");
+		// System.out.println("Checking graph...");
 		System.out.println(CapGraphWithNodes.exportGraph());
+		//
+		// Graph egoNet = CapGraphWithNodes.getEgonet(1);
+		//
+		// System.out.println("Checking egonet...");
+		// System.out.println(egoNet.exportGraph());
+		//
+		// System.out.println("Checking transpose...");
+		//
+		// Graph transposedGraph =
+		// CapGraphWithNodes.transpose(CapGraphWithNodes);
+		//
+		// System.out.println(transposedGraph.exportGraph());
+		//
+		// System.out.println("Checking getSCCs...");
+		//
+		// CapGraphWithNodes.identifyTrendSetters();
+		// System.out.println(CapGraphWithNodes.exportGraph());
+		//
+		// for (int nodeName : CapGraphWithNodes.getVertexIDs()) {
+		// CapNode node = CapGraphWithNodes.getVertex(nodeName);
+		// if (node.getIsTrendSetter()) {
+		// System.out.println(nodeName + " is a trend setter");
+		// System.out.println(node.getFollowers().toString());
+		// }
+		// }
 
-		Graph egoNet = CapGraphWithNodes.getEgonet(1);
-
-		System.out.println("Checking egonet...");
-		System.out.println(egoNet.exportGraph());
-
-		System.out.println("Checking transpose...");
-
-		Graph transposedGraph = CapGraphWithNodes.transpose(CapGraphWithNodes);
-
-		System.out.println(transposedGraph.exportGraph());
-
-		System.out.println("Checking getSCCs...");
-
-		CapGraphWithNodes.identifyTrendSetters();
-		System.out.println(CapGraphWithNodes.exportGraph());
-
-		for (int nodeName : CapGraphWithNodes.getVertexIDs()) {
-			CapNode node = CapGraphWithNodes.getVertex(nodeName);
-			if (node.getIsTrendSetter()) {
-				System.out.println(nodeName + " is a trend setter");
-				System.out.println(node.getFollowers().toString());
-			}
-		}
+		CapGraphWithNodes.trackAllSharing(2);
 
 		// System.out.println("Checking twitter SCCs");
 		// int i = 0;
