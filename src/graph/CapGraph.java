@@ -66,6 +66,24 @@ public class CapGraph implements Graph {
 	}
 
 	/*
+	 * Add several vertices to a subgraph.
+	 */
+	private void addVertices(CapGraph subGraph, Set<Integer> nodes) {
+
+		for (int nodeID : nodes) {
+			if (!subGraph.getVertexIDs().contains(nodeID)) {
+				subGraph.addVertex(nodeID);
+				CapNode origiNode = listMap.get(nodeID);
+				CapNode newNode = subGraph.getVertex(nodeID);
+				for (int neighbor : origiNode.getNeighbors()) {
+					newNode.addNeighbor(neighbor);
+				}
+
+			}
+		}
+	}
+
+	/*
 	 * (non-Javadoc)
 	 * 
 	 * @see graph.Graph#addEdge(int, int)
@@ -328,7 +346,10 @@ public class CapGraph implements Graph {
 
 	}
 
-	public void buildSharingGraph(int nodeID, Deque<Integer> toVisit, Set<Integer> alreadyViewed) {
+	/*
+	 * Continues the flow of information if preconditions are met.
+	 */
+	private void shareVideo(int nodeID, Deque<Integer> toVisit, Set<Integer> alreadyViewed) {
 
 		CapNode node = this.getVertex(nodeID);
 		if (!alreadyViewed.contains(nodeID)) {
@@ -357,7 +378,11 @@ public class CapGraph implements Graph {
 					// This might make sense as a heuristic,
 					// but realistically they're not going to know
 					// how many of their followers have seen the video.
-					// However it does help to gauge popularity of the video.
+					// However it does help to gauge how many people it has
+					// reached.
+
+					// I might have considered eliminating it entirely
+					// because it's almost identical to toVisit.
 
 					if (followersExposed > maxFollowerViews) {
 						return;
@@ -373,13 +398,11 @@ public class CapGraph implements Graph {
 		}
 	}
 
-	public void trackAllSharing(int startingNodeID) {
+	/*
+	 * 
+	 */
+	public void startViralSharing(int startingNodeID) {
 
-		// alreadyViewed needs to contain anyone who's been exposed.
-		// however, the queue should contain anyone who hasn't
-		// been given the chance to share.
-		// This means that those who are exposed for the first time
-		// should be added to the queue BEFORE they are added to alreadyViewed.
 		Deque<Integer> toVisit = new LinkedList<Integer>();
 		Set<Integer> Visited = new HashSet<Integer>();
 		Set<Integer> alreadyViewed = new HashSet<Integer>();
@@ -394,31 +417,57 @@ public class CapGraph implements Graph {
 		int n = 1;
 		int currentGraphLength = 0;
 		int previousGraphLength = 0;
+		CapGraph subGraph = new CapGraph();
+
 		while (!toVisit.isEmpty()) {
 			int nodeID = toVisit.pop();
 			if (!Visited.contains(nodeID)) {
-				buildSharingGraph(nodeID, toVisit, alreadyViewed);
+				shareVideo(nodeID, toVisit, alreadyViewed);
 				Visited.add(nodeID);
 			}
-			CapGraph graph = new CapGraph(startingNodeID);
 
-			
-			for (int nodeName : Visited) {
-				graph.addVertex(nodeName);
-				CapNode origiNode = listMap.get(nodeName);
-				CapNode newNode = graph.getVertex(nodeName);
-				for (int neighbor : origiNode.getNeighbors()) {
-					newNode.addNeighbor(neighbor);
-				}
-				currentGraphLength = graph.getVertexIDs().size();
-			}
-			if (Visited.size() < this.getVertexIDs().size() &&
-				(currentGraphLength != previousGraphLength)) {
+			addVertices(subGraph, Visited);
+			currentGraphLength = subGraph.getVertexIDs().size();
+
+			if (shouldContinueGenerating(n, 10, previousGraphLength, currentGraphLength)) {
 				previousGraphLength = currentGraphLength;
+				System.out.println("Generation " + n + " " + subGraph.exportGraph());
 				n++;
 			}
 		}
+	}
 
+	/*
+	 * Returns true if the max generation number hasn't been reached and the
+	 * information can flow further.
+	 */
+	private boolean shouldContinueGenerating(int generationNum, int maxGenerationNum, int previousLength,
+			int currentLength) {
+
+		if ((generationNum <= maxGenerationNum) && (previousLength != currentLength)) {
+			return true;
+		}
+
+		return false;
+	}
+
+	/*
+	 * Return a subgraph comprised of the starting node and the set of
+	 * additional nodes.
+	 */
+	private CapGraph buildSubGraph(int startingNodeID, Set<Integer> nodes) {
+
+		CapGraph subGraph = new CapGraph(startingNodeID);
+
+		for (int nodeID : nodes) {
+			subGraph.addVertex(nodeID);
+			CapNode origiNode = listMap.get(nodeID);
+			CapNode newNode = subGraph.getVertex(nodeID);
+			for (int neighbor : origiNode.getNeighbors()) {
+				newNode.addNeighbor(neighbor);
+			}
+		}
+		return subGraph;
 	}
 
 	/*
@@ -486,17 +535,17 @@ public class CapGraph implements Graph {
 		// }
 		// }
 
-		CapGraphWithNodes.trackAllSharing(2);
+		CapGraphWithNodes.startViralSharing(2);
 
-		// System.out.println("Checking twitter SCCs");
-		// int i = 0;
-		// for (Graph graph : TwitterGraph.getSCCs()) {
-		// if (i == 0) {
-		// System.out.println("a twitter scc: " + graph.exportGraph());
-		// }
-		// i++;
-		//
-		// }
+		System.out.println("Checking twitter SCCs");
+		int i = 0;
+		for (Graph graph : TwitterGraph.getSCCs()) {
+			if (i == 0) {
+				System.out.println("a twitter scc: " + graph.exportGraph());
+			}
+			i++;
+
+		}
 
 	}
 
